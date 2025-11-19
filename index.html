@@ -1,0 +1,1031 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>MyNeoUTEM - Galactic Pro</title>
+    
+    <!-- Fuentes -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    
+    <!-- Iconos Lucide -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        /* * ESTILOS GLOBALES Y VARIABLES 
+         */
+        :root {
+            /* Colores Dinámicos (HUE base configurable) */
+            --hue: 320; /* Fucsia por defecto */
+            --primary: hsl(var(--hue), 100%, 60%);
+            --primary-glow: hsla(var(--hue), 100%, 60%, 0.6);
+            --bg-deep: #050510;
+            --bg-panel: rgba(20, 20, 35, 0.7);
+            --text-main: #ffffff;
+            --text-muted: #a0a0b0;
+            --danger: #ff4b4b;
+            --success: #00e676;
+            --warning: #ffb300;
+            
+            /* Bordes y Sombras */
+            --glass-border: 1px solid rgba(255, 255, 255, 0.1);
+            --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+        }
+
+        /* Animación de Fondo de Estrellas */
+        @keyframes move-stars {
+            from { background-position: 0 0; }
+            to { background-position: -1000px 1000px; }
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; outline: none; }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--bg-deep);
+            /* Fondo Galáctico con Estrellas Generadas por CSS */
+            background-image: 
+                radial-gradient(white, rgba(255,255,255,.2) 2px, transparent 3px),
+                radial-gradient(white, rgba(255,255,255,.15) 1px, transparent 2px),
+                radial-gradient(white, rgba(255,255,255,.1) 2px, transparent 3px);
+            background-size: 550px 550px, 350px 350px, 250px 250px;
+            background-position: 0 0, 40px 60px, 130px 270px;
+            animation: move-stars 100s linear infinite; /* Movimiento suave */
+            
+            color: var(--text-main);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+        
+        /* Capa de Nebulosa para dar color sobre las estrellas */
+        body::after {
+            content: "";
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(135deg, rgba(0, 58, 112, 0.4), rgba(65, 0, 90, 0.4));
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        /* UI Elements Base */
+        h1, h2, h3 { font-family: 'Orbitron', sans-serif; color: var(--primary); text-shadow: 0 0 10px var(--primary-glow); }
+        
+        button { cursor: pointer; font-family: 'Poppins', sans-serif; transition: all 0.2s; }
+        
+        /* Scrollbar personalizada */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: rgba(0,0,0,0.3); }
+        ::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 3px; }
+
+        /* * PANTALLA DE BIENVENIDA
+         */
+        #welcome-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #050510;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            opacity: 1;
+            transition: opacity 1.5s ease-out, visibility 1.5s;
+        }
+        #welcome-screen.fade-out {
+            opacity: 0;
+            visibility: hidden;
+        }
+        .welcome-content {
+            text-align: center;
+            animation: floatUp 1s ease-out;
+        }
+        .welcome-content h1 {
+            font-size: 3.5rem;
+            letter-spacing: 2px;
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+            background: linear-gradient(to right, #fff, var(--primary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .welcome-content p {
+            font-size: 1.2rem;
+            color: var(--text-muted);
+        }
+        .welcome-line {
+            width: 0;
+            height: 2px;
+            background: var(--primary);
+            margin: 20px auto;
+            box-shadow: 0 0 10px var(--primary);
+            animation: expandLine 1.5s ease-out forwards 0.5s;
+        }
+        @keyframes floatUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes expandLine { from { width: 0; } to { width: 150px; } }
+
+
+        /* * LAYOUT PRINCIPAL 
+         */
+        .app-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            display: grid;
+            grid-template-columns: 300px 1fr 350px; /* Sidebar | Main | Widgets */
+            gap: 25px;
+            min-height: 100vh;
+            opacity: 0;
+            animation: fadeInApp 1s ease-out forwards 2.5s;
+        }
+        @keyframes fadeInApp { to { opacity: 1; } }
+
+        /* Header (Logo) */
+        .sidebar { display: flex; flex-direction: column; gap: 20px; }
+        .logo-area {
+            text-align: center;
+            padding: 20px;
+            background: var(--bg-panel);
+            border-radius: 16px;
+            backdrop-filter: blur(10px);
+            border: var(--glass-border);
+            position: relative;
+        }
+        .logo-img { width: 80px; height: auto; margin-bottom: 10px; filter: drop-shadow(0 0 5px var(--primary)); }
+        
+        /* Paneles Generales */
+        .panel {
+            background: var(--bg-panel);
+            backdrop-filter: blur(12px);
+            border-radius: 16px;
+            border: var(--glass-border);
+            box-shadow: var(--glass-shadow);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+        }
+        .panel::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; height: 2px;
+            background: linear-gradient(90deg, transparent, var(--primary), transparent);
+            opacity: 0.7;
+        }
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding-bottom: 10px;
+        }
+        .panel-header h2 { font-size: 1.1rem; letter-spacing: 1px; display: flex; align-items: center; gap: 8px; }
+
+        /* * POMODORO (CENTRAL) 
+         */
+        .pomodoro-container {
+            text-align: center;
+            padding: 30px;
+            position: relative;
+        }
+        .timer-display {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 5rem;
+            font-weight: 700;
+            color: #fff;
+            text-shadow: 0 0 20px var(--primary);
+            margin: 10px 0;
+        }
+        .timer-status { font-size: 1rem; color: var(--text-muted); margin-bottom: 20px; font-style: italic; }
+        .timer-controls { display: flex; justify-content: center; gap: 15px; }
+        
+        .btn-action {
+            padding: 10px 25px;
+            border: none;
+            border-radius: 8px;
+            background: var(--primary);
+            color: #000;
+            font-weight: 600;
+            box-shadow: 0 0 15px var(--primary-glow);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+        }
+        .btn-action:hover { transform: scale(1.05); box-shadow: 0 0 25px var(--primary-glow); }
+        .btn-secondary {
+            background: transparent;
+            border: 1px solid var(--text-muted);
+            color: var(--text-muted);
+        }
+        .btn-secondary:hover { border-color: #fff; color: #fff; }
+
+        /* * LISTA DE TAREAS 
+         */
+        .task-list { list-style: none; flex-grow: 1; overflow-y: auto; max-height: 400px; }
+        .task-item {
+            background: rgba(255,255,255,0.05);
+            margin-bottom: 10px;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid var(--text-muted);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: transform 0.2s;
+        }
+        .task-item:hover { transform: translateX(5px); background: rgba(255,255,255,0.08); }
+        
+        /* Prioridades */
+        .priority-high { border-left-color: var(--danger); }
+        .priority-medium { border-left-color: var(--warning); }
+        .priority-low { border-left-color: var(--success); }
+
+        .task-info h4 { font-size: 1rem; margin-bottom: 4px; }
+        .task-meta { font-size: 0.8rem; color: var(--text-muted); display: flex; gap: 10px; }
+        .task-completed { text-decoration: line-through; opacity: 0.5; border-left-color: var(--success); }
+
+        .btn-icon { background: none; border: none; color: var(--text-muted); padding: 5px; border-radius: 4px; }
+        .btn-icon:hover { background: rgba(255,255,255,0.1); color: #fff; }
+        .btn-icon.delete:hover { color: var(--danger); }
+        .btn-icon.check:hover { color: var(--success); }
+        
+        /* Badge de Proyecto en Tarea */
+        .project-badge {
+            font-size: 0.7rem; padding: 2px 8px; border-radius: 10px;
+            background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);
+            vertical-align: middle; margin-left: 8px; color: #fff;
+        }
+
+        /* * METAS (CHECKLIST) 
+         */
+        .goal-item {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        .goal-text { flex-grow: 1; }
+        .goal-progress-bar-container {
+            width: 100%; height: 6px; background: rgba(0,0,0,0.5); border-radius: 3px; margin-top: 5px;
+        }
+        .goal-progress-fill { height: 100%; background: var(--primary); width: 0%; transition: width 0.3s; border-radius: 3px; }
+
+        /* * INPUTS Y FORMULARIOS 
+         */
+        input, select, textarea {
+            background: rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.2);
+            color: #fff;
+            padding: 10px;
+            border-radius: 6px;
+            font-family: 'Poppins', sans-serif;
+            width: 100%;
+        }
+        input[type="date"] { color-scheme: dark; }
+        input:focus, select:focus { border-color: var(--primary); box-shadow: 0 0 5px var(--primary-glow); }
+        ::placeholder { color: rgba(255,255,255,0.3); font-style: italic; }
+
+        /* * MODAL 
+         */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8); backdrop-filter: blur(5px);
+            z-index: 1000; display: none; justify-content: center; align-items: center;
+        }
+        .modal-box {
+            background: #151525;
+            border: 1px solid var(--primary);
+            box-shadow: 0 0 30px rgba(0,0,0,0.8);
+            padding: 25px;
+            border-radius: 12px;
+            width: 90%; max-width: 400px;
+            animation: popIn 0.3s ease;
+            display: flex; flex-direction: column; gap: 15px;
+        }
+        @keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        
+        .form-group { margin-bottom: 0; }
+        .form-group label { display: block; margin-bottom: 5px; color: var(--primary); font-size: 0.9rem; }
+
+        /* * NUEVO ANILLO DE PROGRESO (SIN SVG)
+         */
+        .progress-ring-container {
+            width: 160px;
+            height: 160px;
+            margin: 0 auto;
+            border-radius: 50%;
+            /* Fondo cónico dinámico */
+            background: conic-gradient(var(--primary) 0deg, rgba(255,255,255,0.1) 0deg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            transition: background 0.5s ease;
+        }
+        /* Círculo interior para efecto anillo */
+        .progress-ring-inner {
+            width: 140px;
+            height: 140px;
+            background: var(--bg-panel);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            z-index: 2;
+        }
+        .progress-ring-container::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            border-radius: 50%;
+            box-shadow: 0 0 20px var(--primary-glow);
+            opacity: 0.5;
+            z-index: 1;
+        }
+        #progress-text {
+            font-family: 'Orbitron';
+            font-size: 2.5rem;
+            color: #fff;
+            text-shadow: 0 0 10px var(--primary);
+        }
+
+        /* Visualizador de Ruido */
+        .audio-visualizer {
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            gap: 3px;
+            height: 30px;
+            margin-top: 10px;
+        }
+        .bar {
+            width: 4px;
+            background: var(--primary);
+            animation: soundBars 0.5s infinite ease-in-out alternate;
+        }
+        .bar:nth-child(2) { animation-delay: 0.1s; }
+        .bar:nth-child(3) { animation-delay: 0.2s; }
+        .bar:nth-child(4) { animation-delay: 0.3s; }
+        .bar:nth-child(5) { animation-delay: 0.4s; }
+        @keyframes soundBars { from { height: 5px; opacity: 0.5; } to { height: 25px; opacity: 1; box-shadow: 0 0 5px var(--primary); } }
+        
+        /* Reloj Widget */
+        #clock-widget {
+            text-align: center;
+            font-family: 'Orbitron';
+        }
+        #clock-time { font-size: 2.5rem; color: #fff; text-shadow: 0 0 10px var(--primary); }
+        #clock-date { font-size: 0.9rem; color: var(--text-muted); }
+
+
+        /* * RESPONSIVE 
+         */
+        @media (max-width: 1024px) {
+            .app-container { grid-template-columns: 1fr; grid-template-rows: auto; }
+            .sidebar { display: block; }
+            .app-container { display: flex; flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- PANTALLA DE BIENVENIDA -->
+    <div id="welcome-screen">
+        <div class="welcome-content">
+            <h1>BIENVENIDO A MY NEOUTEM</h1>
+            <p>Organiza tu mente, tus metas y tu energía.</p>
+            <p style="color: var(--primary); font-weight: 600; margin-top: 10px; font-size: 1.3rem;">El futuro empieza hoy.</p>
+            <div class="welcome-line"></div>
+        </div>
+    </div>
+
+    <!-- TOAST CONTAINER -->
+    <div id="toast-container" style="position: fixed; bottom: 20px; right: 20px; z-index: 10000; display: flex; flex-direction: column; gap: 10px;"></div>
+
+    <div class="app-container">
+        
+        <!-- SIDEBAR IZQUIERDA (Metas y Config) -->
+        <aside class="sidebar">
+            <!-- Logo -->
+            <div class="logo-area">
+                <img src="image_c20787.png" alt="UTEM Logo" class="logo-img" onerror="this.src='https://placehold.co/80x80/003A70/FFF?text=UTEM'">
+                <h3>MyNeoUTEM</h3>
+                <p style="font-size: 0.8rem; color: var(--text-muted);">Estudiante Pro</p>
+            </div>
+
+            <!-- Selector de Tema -->
+            <div class="panel">
+                <div class="panel-header"><h2><i data-lucide="palette"></i> Tema</h2></div>
+                <div style="display: flex; gap: 10px; justify-content: center;">
+                    <!-- Botones de Tema -->
+                    <button onclick="changeTheme(213)" style="width:25px; height:25px; background:#003A70; border-radius:50%; border:2px solid #fff;"></button>
+                    <button onclick="changeTheme(270)" style="width:25px; height:25px; background:#8A2BE2; border-radius:50%; border:none;"></button>
+                    <button onclick="changeTheme(320)" style="width:25px; height:25px; background:#FF00FF; border-radius:50%; border:none;"></button>
+                    <button onclick="changeTheme(190)" style="width:25px; height:25px; background:#00BFFF; border-radius:50%; border:none;"></button>
+                </div>
+            </div>
+            
+            <!-- Reloj Widget (Nuevo) -->
+            <div class="panel" id="clock-widget">
+                 <div id="clock-time">00:00</div>
+                 <div id="clock-date">Cargando fecha...</div>
+            </div>
+
+            <!-- Metas Semanales (Checklist) -->
+            <div class="panel" style="flex-grow: 1;">
+                <div class="panel-header">
+                    <h2><i data-lucide="target"></i> Metas Clave</h2>
+                    <button class="btn-icon" onclick="openModal('goal-modal')"><i data-lucide="plus"></i></button>
+                </div>
+                <div id="goals-list" style="display: flex; flex-direction: column; gap: 10px;"></div>
+            </div>
+
+        </aside>
+
+
+        <!-- COLUMNA CENTRAL: POMODORO Y TAREAS -->
+        <main style="display: flex; flex-direction: column; gap: 20px;">
+            
+            <!-- Pomodoro -->
+            <section class="panel pomodoro-container">
+                <div style="position: absolute; top: 15px; right: 15px;">
+                    <button class="btn-icon" onclick="openModal('info-modal')"><i data-lucide="info"></i></button>
+                </div>
+                <h2 style="justify-content: center;">MODO ENFOQUE</h2>
+                <div class="timer-display" id="timer">25:00</div>
+                <p id="timer-status" style="color: var(--text-muted); font-style: italic; margin-bottom: 15px;">Sistema listo.</p>
+                
+                <div class="timer-controls">
+                    <button class="btn-action" id="btn-start" onclick="startTimer()">INICIAR</button>
+                    <button class="btn-action" id="btn-pause" onclick="pauseTimer()" style="display: none; background: var(--warning); color: #000;">PAUSAR</button>
+                    <button class="btn-action btn-secondary" onclick="resetTimer()">REINICIAR</button>
+                </div>
+            </section>
+
+            <!-- Gestor de Tareas -->
+            <section class="panel" style="flex-grow: 1;">
+                <div class="panel-header">
+                    <h2><i data-lucide="list-todo"></i> Tareas</h2>
+                    <button class="btn-action" style="font-size: 0.8rem; padding: 5px 15px;" onclick="openTaskModal()">+ Tarea</button>
+                </div>
+                <ul id="task-list" class="task-list">
+                    <!-- Tareas renderizadas aquí -->
+                </ul>
+            </section>
+        </main>
+
+
+        <!-- COLUMNA DERECHA: WIDGETS -->
+        <aside class="sidebar widgets">
+            <!-- Anillo -->
+            <div class="panel" style="align-items: center;">
+                <h2>Productividad</h2>
+                <div class="progress-ring-container" id="ring-container">
+                    <div class="progress-ring-inner">
+                         <div id="progress-text">0%</div>
+                         <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 5px;">Completado</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Neural Noise Generator (Reemplazo de IA) -->
+            <div class="panel">
+                <div class="panel-header"><h2><i data-lucide="headphones"></i> Ruido Neural</h2></div>
+                <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 10px;">
+                    Bloquea distracciones con ruido marrón de alta densidad.
+                </p>
+                <div id="audio-visualizer" class="audio-visualizer" style="opacity: 0;">
+                    <div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div>
+                </div>
+                <button class="btn-action" id="btn-noise" onclick="toggleNoise()" style="width: 100%; justify-content: center; margin-top: 10px;">
+                    <i data-lucide="play"></i> Activar Enfoque
+                </button>
+            </div>
+
+            <!-- Neo (Lógico) -->
+            <div class="panel">
+                <div class="panel-header"><h2><i data-lucide="bot"></i> Neo</h2></div>
+                <p id="neo-msg" style="font-style: italic; color: var(--text-main);">
+                    "Cargando sistemas de motivación..."
+                </p>
+            </div>
+
+            <!-- Notas -->
+            <div class="panel" style="flex-grow: 1;">
+                <div class="panel-header">
+                    <h2><i data-lucide="file-text"></i> Notas</h2>
+                    <span id="save-indicator" style="font-size: 0.7rem; color: var(--success); opacity: 0; transition: opacity 0.5s;">✔ Guardado</span>
+                </div>
+                <textarea id="quick-notes" style="flex-grow: 1; background: transparent; border: none; resize: none;" placeholder="Ej: Recordar preguntar al profe sobre el capítulo 3..."></textarea>
+            </div>
+        </aside>
+
+    </div>
+
+    <!-- MODALS -->
+    
+    <!-- Modal Tarea -->
+    <div class="modal-overlay" id="task-modal">
+        <div class="modal-box">
+            <h2 id="task-modal-title" style="margin-bottom: 15px;">Nueva Tarea</h2>
+            <input type="hidden" id="task-id">
+            <div class="form-group">
+                <label>Título</label>
+                <input type="text" id="task-title" placeholder="Ej: Estudiar para el certamen de Cálculo">
+            </div>
+            <div class="form-group">
+                <label>Descripción</label>
+                <textarea id="task-desc" rows="3" placeholder="Ej: Repasar derivadas y hacer la guía 4..."></textarea>
+            </div>
+            <div class="form-group">
+                <label>Fecha Límite</label>
+                <input type="date" id="task-date">
+            </div>
+            <div class="form-group">
+                <label>Prioridad</label>
+                <select id="task-priority">
+                    <option value="low">Baja</option>
+                    <option value="medium">Media</option>
+                    <option value="high">Alta</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Vincular a Meta (Opcional)</label>
+                <select id="task-goal-select"><option value="">Ninguna</option></select>
+            </div>
+            <div style="text-align: right; margin-top: 20px;">
+                <button class="btn-action" style="background: transparent; border: 1px solid var(--text-muted); color: #fff; margin-right: 10px;" onclick="closeModals()">Cancelar</button>
+                <button class="btn-action" onclick="saveTask()">Guardar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Meta -->
+    <div class="modal-overlay" id="goal-modal">
+        <div class="modal-box">
+            <h2 style="margin-bottom: 15px;">Nueva Meta</h2>
+            <div class="form-group">
+                <label>Nombre de la Meta</label>
+                <input type="text" id="goal-title" placeholder="Ej: Aprobar el Semestre con Distinción 🎓">
+            </div>
+            <div style="text-align: right; margin-top: 20px;">
+                <button class="btn-action" style="background: transparent; border: 1px solid var(--text-muted); color: #fff; margin-right: 10px;" onclick="closeModals()">Cancelar</button>
+                <button class="btn-action" onclick="saveGoal()">Guardar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Info Pomodoro (MOTIVACIONAL) -->
+    <div class="modal-overlay" id="info-modal">
+        <div class="modal-box">
+            <h2 style="color: var(--primary); text-align:center; margin-bottom: 15px;">🚀 Dominio Temporal</h2>
+            <p style="margin: 10px 0; font-size: 1.1rem; line-height: 1.5;">
+                El <strong>Método Pomodoro</strong> no es solo un reloj, es tu arma secreta.
+            </p>
+            <p style="margin: 10px 0; color: var(--text-muted);">
+                🔥 <strong>25 Minutos de Fuego:</strong> Enfoque total. Sin redes sociales, sin excusas. Eres tú contra la materia. ¡Gánale!
+            </p>
+            <p style="margin: 10px 0; color: var(--text-muted);">
+                🍃 <strong>5 Minutos de Recarga:</strong> Tu cerebro es un músculo. Dale aire para que vuelva más fuerte.
+            </p>
+            <p style="margin-top: 15px; font-weight: 600; text-align: center;">¡Activa el cronómetro y conquista el día!</p>
+            <button class="btn-action" style="width: 100%; margin-top: 15px;" onclick="closeModals()">¡A darle!</button>
+        </div>
+    </div>
+
+    <script>
+        // --- VARIABLES Y ESTADO ---
+        let state = {
+            tasks: [],
+            goals: [],
+            notes: '',
+            theme: 320
+        };
+        
+        // Timer
+        let timer = null;
+        let timeLeft = 25 * 60;
+        let isPaused = true;
+        let mode = 'work';
+
+        // Audio (Noise)
+        let audioCtx = null;
+        let noiseNode = null;
+        let isNoisePlaying = false;
+
+        // --- INICIALIZACIÓN ---
+        document.addEventListener('DOMContentLoaded', () => {
+            loadData();
+            initUI();
+            lucide.createIcons();
+            
+            // Bienvenida
+            setTimeout(() => {
+                document.getElementById('welcome-screen').classList.add('fade-out');
+                updateNeo();
+            }, 2500);
+            
+            // Reloj
+            setInterval(updateClock, 1000);
+            updateClock();
+        });
+        
+        function updateClock() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            const dateString = now.toLocaleDateString([], { weekday: 'long', day: 'numeric', month: 'short' });
+            document.getElementById('clock-time').innerText = timeString;
+            document.getElementById('clock-date').innerText = dateString.charAt(0).toUpperCase() + dateString.slice(1);
+        }
+
+        function loadData() {
+            const saved = localStorage.getItem('myNeoUltimate');
+            if(saved) {
+                state = JSON.parse(saved);
+                if(!state.theme) state.theme = 320;
+            }
+            applyTheme(state.theme);
+            document.getElementById('quick-notes').value = state.notes || '';
+        }
+
+        function saveData() {
+            localStorage.setItem('myNeoUltimate', JSON.stringify(state));
+            renderAll();
+        }
+        
+        function initUI() {
+            renderAll();
+            
+            // Auto-save notas
+            const notesArea = document.getElementById('quick-notes');
+            let timeout;
+            notesArea.addEventListener('input', (e) => {
+                state.notes = e.target.value;
+                clearTimeout(timeout);
+                timeout = setTimeout(() => {
+                    saveData();
+                    showSaveIndicator();
+                }, 1000);
+            });
+        }
+
+        function showSaveIndicator() {
+            const el = document.getElementById('save-indicator');
+            el.style.opacity = 1;
+            setTimeout(() => el.style.opacity = 0, 2000);
+        }
+
+        // --- GENERADOR DE RUIDO MARRÓN (AUDIO API) ---
+        function toggleNoise() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+
+            if (isNoisePlaying) {
+                noiseNode.disconnect();
+                isNoisePlaying = false;
+                document.getElementById('btn-noise').innerHTML = '<i data-lucide="play"></i> Activar Enfoque';
+                document.getElementById('audio-visualizer').style.opacity = 0;
+            } else {
+                // Crear buffer de ruido marrón
+                const bufferSize = audioCtx.sampleRate * 2; // 2 segundos
+                const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+                const data = buffer.getChannelData(0);
+                let lastOut = 0;
+                for (let i = 0; i < bufferSize; i++) {
+                    const white = Math.random() * 2 - 1;
+                    data[i] = (lastOut + (0.02 * white)) / 1.02;
+                    lastOut = data[i];
+                    data[i] *= 3.5; // Compensar ganancia
+                }
+
+                noiseNode = audioCtx.createBufferSource();
+                noiseNode.buffer = buffer;
+                noiseNode.loop = true;
+                
+                const gainNode = audioCtx.createGain();
+                gainNode.gain.value = 0.15; // Volumen suave
+                
+                noiseNode.connect(gainNode);
+                gainNode.connect(audioCtx.destination);
+                noiseNode.start();
+                
+                isNoisePlaying = true;
+                document.getElementById('btn-noise').innerHTML = '<i data-lucide="pause"></i> Pausar Ruido';
+                document.getElementById('audio-visualizer').style.opacity = 1;
+            }
+            lucide.createIcons();
+        }
+
+        // --- TEMA Y ESTILOS ---
+        function changeTheme(hue) {
+            state.theme = hue;
+            applyTheme(hue);
+            saveData();
+        }
+
+        function applyTheme(hue) {
+            document.documentElement.style.setProperty('--hue', hue);
+        }
+
+        // --- LOGICA DE TAREAS ---
+        function openTaskModal(index = null) {
+            const modal = document.getElementById('task-modal');
+            const titleInput = document.getElementById('task-title');
+            const dateInput = document.getElementById('task-date');
+            const priorityInput = document.getElementById('task-priority');
+            const goalSelect = document.getElementById('task-goal-select');
+            const idInput = document.getElementById('task-id');
+            const descInput = document.getElementById('task-desc');
+            
+            // Poblar select de metas
+            goalSelect.innerHTML = '<option value="">Ninguna</option>';
+            state.goals.forEach(g => {
+                goalSelect.innerHTML += `<option value="${g.id}">${g.title}</option>`;
+            });
+
+            if (index !== null) {
+                const t = state.tasks[index];
+                document.getElementById('task-modal-title').innerText = "Editar Tarea";
+                titleInput.value = t.title;
+                dateInput.value = t.date;
+                priorityInput.value = t.priority;
+                goalSelect.value = t.goalId || "";
+                descInput.value = t.description || ""; 
+                idInput.value = index; 
+            } else {
+                document.getElementById('task-modal-title').innerText = "Nueva Tarea";
+                titleInput.value = "";
+                dateInput.value = "";
+                priorityInput.value = "medium";
+                goalSelect.value = "";
+                descInput.value = "";
+                idInput.value = "new";
+            }
+            
+            modal.style.display = 'flex';
+        }
+
+        function saveTask() {
+            const id = document.getElementById('task-id').value;
+            const title = document.getElementById('task-title').value;
+            const date = document.getElementById('task-date').value;
+            const priority = document.getElementById('task-priority').value;
+            const goalId = document.getElementById('task-goal-select').value;
+            const description = document.getElementById('task-desc').value;
+
+            if (!title) { showToast("Falta el título", "error"); return; }
+
+            const taskObj = { title, date, priority, goalId, description, completed: false };
+
+            if (id === "new") {
+                state.tasks.push(taskObj);
+                showToast("Tarea creada", "success");
+            } else {
+                taskObj.completed = state.tasks[id].completed;
+                state.tasks[id] = taskObj;
+                showToast("Tarea actualizada", "success");
+            }
+
+            closeModals();
+            saveData();
+        }
+
+        function toggleTask(index) {
+            state.tasks[index].completed = !state.tasks[index].completed;
+            saveData();
+            if(state.tasks[index].completed) showToast("¡Tarea completada!", "success");
+        }
+
+        function deleteTask(index) {
+            if(confirm("¿Borrar tarea?")) {
+                state.tasks.splice(index, 1);
+                saveData();
+            }
+        }
+
+        // --- LOGICA DE METAS ---
+        function openModal(id) { document.getElementById(id).style.display = 'flex'; }
+        function closeModals() { document.querySelectorAll('.modal-overlay').forEach(m => m.style.display = 'none'); }
+
+        function saveGoal() {
+            const title = document.getElementById('goal-title').value;
+            if(!title) return;
+            
+            state.goals.push({ id: Date.now().toString(), title, progress: 0 });
+            closeModals();
+            document.getElementById('goal-title').value = "";
+            saveData();
+            showToast("Meta añadida", "success");
+        }
+
+        function deleteGoal(index) {
+            if(confirm("¿Borrar meta?")) {
+                state.goals.splice(index, 1);
+                saveData();
+            }
+        }
+
+        function updateGoalProgress(index, val) {
+            state.goals[index].progress = val;
+            saveData();
+        }
+
+        // --- RENDERIZADO ---
+        function renderAll() {
+            // Tareas
+            const taskList = document.getElementById('task-list');
+            taskList.innerHTML = '';
+            
+            const sortedTasks = [...state.tasks].sort((a,b) => a.completed - b.completed);
+            
+            sortedTasks.forEach((t, originalIndex) => {
+                const realIndex = state.tasks.indexOf(t);
+                const li = document.createElement('li');
+                li.className = `task-item priority-${t.priority} ${t.completed ? 'task-completed' : ''}`;
+                
+                const goal = state.goals.find(g => g.id == t.goalId);
+                const goalTag = goal ? `<span class="project-badge">${goal.title}</span>` : '';
+                const descHtml = t.description ? `<div style="font-size:0.75rem; color:var(--text-muted); margin-top:4px;">${t.description.substring(0,50)}${t.description.length>50?'...':''}</div>` : '';
+
+                li.innerHTML = `
+                    <div style="flex-grow:1">
+                        <div style="font-weight:600">${t.title} ${goalTag}</div>
+                        ${descHtml}
+                        <div style="font-size:0.8rem; color:var(--text-muted); margin-top:2px;"><i data-lucide="calendar" style="width:12px"></i> ${t.date || 'Sin fecha'}</div>
+                    </div>
+                    <div style="display:flex; gap:5px;">
+                        <button class="btn-icon" onclick="toggleTask(${realIndex})"><i data-lucide="${t.completed ? 'rotate-ccw' : 'check-circle'}"></i></button>
+                        <button class="btn-icon" onclick="openTaskModal(${realIndex})"><i data-lucide="edit"></i></button>
+                        <button class="btn-icon" onclick="deleteTask(${realIndex})"><i data-lucide="trash-2"></i></button>
+                    </div>
+                `;
+                taskList.appendChild(li);
+            });
+
+            // Metas
+            const goalList = document.getElementById('goals-list');
+            goalList.innerHTML = '';
+            state.goals.forEach((g, i) => {
+                const div = document.createElement('div');
+                div.className = 'goal-item';
+                div.innerHTML = `
+                    <div style="flex-grow:1">
+                        <div class="goal-text" style="font-weight:600; font-size:0.9rem;">${g.title}</div>
+                        <div class="goal-progress-bar-container">
+                            <div class="goal-progress-fill" style="width:${g.progress}%"></div>
+                        </div>
+                    </div>
+                    <input type="number" min="0" max="100" value="${g.progress}" 
+                        style="width:60px; padding:5px; height:30px; margin: 0 10px;" 
+                        onchange="updateGoalProgress(${i}, this.value)">
+                    <button class="btn-icon" onclick="deleteGoal(${i})"><i data-lucide="x"></i></button>
+                `;
+                goalList.appendChild(div);
+            });
+
+            // Progreso
+            updateProgressRing();
+            updateNeo();
+            lucide.createIcons();
+        }
+
+        function updateProgressRing() {
+            const totalItems = state.tasks.length + state.goals.length;
+            let percent = 0;
+            
+            if (totalItems > 0) {
+                const taskPercent = state.tasks.length ? (state.tasks.filter(t=>t.completed).length / state.tasks.length) : 0;
+                const goalPercent = state.goals.length ? (state.goals.reduce((a,b)=>a+parseInt(b.progress),0) / (state.goals.length*100)) : 0;
+                if(state.tasks.length && state.goals.length) percent = (taskPercent + goalPercent) / 2;
+                else percent = taskPercent || goalPercent;
+            }
+            
+            percent = Math.round(percent * 100);
+            
+            const container = document.getElementById('ring-container');
+            const text = document.getElementById('progress-text');
+            text.innerText = percent + "%";
+            
+            // Actualizar gradiente cónico
+            container.style.background = `conic-gradient(var(--primary) ${percent * 3.6}deg, rgba(255,255,255,0.1) 0deg)`;
+            
+            // Sombra/Brillo dinámico
+            if(percent === 100) {
+                container.style.boxShadow = "0 0 40px var(--primary)";
+            } else {
+                container.style.boxShadow = "0 0 20px rgba(0,0,0,0.5)";
+            }
+        }
+
+        // --- POMODORO ---
+        function updateTimerDisplay() {
+            const m = Math.floor(timeLeft / 60).toString().padStart(2, '0');
+            const s = (timeLeft % 60).toString().padStart(2, '0');
+            document.getElementById('timer').innerText = `${m}:${s}`;
+        }
+
+        function startTimer() {
+            if(!isPaused) return;
+            isPaused = false;
+            document.getElementById('btn-start').style.display = 'none';
+            document.getElementById('btn-pause').style.display = 'inline-block';
+            document.getElementById('timer-status').innerText = mode === 'work' ? "¡Enfoque láser activado!" : "Recargando energía...";
+            
+            timer = setInterval(() => {
+                timeLeft--;
+                updateTimerDisplay();
+                if(timeLeft <= 0) {
+                    clearInterval(timer);
+                    isPaused = true;
+                    completeSession();
+                }
+            }, 1000);
+        }
+
+        function pauseTimer() {
+            isPaused = true;
+            clearInterval(timer);
+            document.getElementById('btn-start').innerText = "REANUDAR";
+            document.getElementById('btn-start').style.display = 'inline-block';
+            document.getElementById('btn-pause').style.display = 'none';
+            document.getElementById('timer-status').innerText = "Sistema en pausa";
+        }
+
+        function resetTimer() {
+            pauseTimer();
+            mode = 'work';
+            timeLeft = 25 * 60;
+            document.getElementById('btn-start').innerText = "INICIAR";
+            document.getElementById('timer-status').innerText = "Listo para la misión";
+            updateTimerDisplay();
+        }
+
+        function completeSession() {
+            if(mode === 'work') {
+                showToast("¡Misión cumplida! Descansa guerrero.", "success");
+                mode = 'break';
+                timeLeft = 5 * 60;
+            } else {
+                showToast("Descanso terminado. ¡A la carga!", "warning");
+                mode = 'work';
+                timeLeft = 25 * 60;
+            }
+            updateTimerDisplay();
+            document.getElementById('btn-start').style.display = 'inline-block';
+            document.getElementById('btn-pause').style.display = 'none';
+            document.getElementById('btn-start').innerText = "INICIAR";
+        }
+
+        // --- NEO LOGIC ---
+        function updateNeo() {
+            const hour = new Date().getHours();
+            let greeting = "Hola.";
+            if(hour < 12) greeting = "Buenos días.";
+            else if(hour < 19) greeting = "Buenas tardes.";
+            else greeting = "Buenas noches.";
+            
+            const percent = parseInt(document.getElementById('progress-text').innerText);
+            let msg = "Todo viaje comienza con un paso.";
+            if(percent > 30) msg = "Vas ganando inercia. ¡Sigue!";
+            if(percent > 70) msg = "La meta está a la vista. Remata.";
+            if(percent == 100) msg = "¡Sistemas al 100%! Eres leyenda.";
+
+            document.getElementById('neo-msg').innerText = `${greeting} ${msg}`;
+        }
+
+        function showToast(msg, type='info') {
+            const container = document.getElementById('toast-container');
+            const div = document.createElement('div');
+            div.style.cssText = `background: rgba(20,20,35,0.95); backdrop-filter: blur(10px); border-left: 4px solid var(--${type === 'info' ? 'primary' : type}); padding: 15px 20px; border-radius: 4px; color: #fff; box-shadow: 0 5px 15px rgba(0,0,0,0.5); display: flex; align-items: center; gap: 10px; min-width: 250px; animation: slideInRight 0.3s ease-out;`;
+            
+            let icon = 'info';
+            if(type === 'success') icon = 'check-circle';
+            if(type === 'warning') icon = 'alert-circle';
+            if(type === 'error') icon = 'x-circle';
+            
+            div.innerHTML = `<i data-lucide="${icon}"></i> <span>${msg}</span>`;
+            container.appendChild(div);
+            lucide.createIcons();
+            
+            setTimeout(() => {
+                div.style.opacity = 0;
+                div.style.transform = 'translateX(100%)';
+                div.style.transition = 'all 0.3s';
+                setTimeout(() => div.remove(), 300);
+            }, 3000);
+        }
+
+    </script>
+</body>
+</html>
